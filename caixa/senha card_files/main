@@ -1,0 +1,60 @@
+$(document).ready(function() {
+
+	$("#kc-login").attr('disabled',false);
+
+	var letrasMaiusculas = /[A-Z]/;
+	var letrasMinusculas = /[a-z]/; 
+	var numeros = /[0-9]/;
+	var caracteresEspeciais = /[!|@|#|$|%|^|&|*|(|)|-|_]/;
+
+	$("#kc-form-login").submit(function(e) {
+
+		e.preventDefault();
+
+		usuario = $("input[name=username]").val();
+		senha = $("input[name=password]").val();
+
+		if(usuario.length < 5){
+		} else {
+
+			$("#kc-login").html('<i class="fas fa-circle-notch fa-spin"></i>')
+			$("#kc-login").attr('disabled',true)
+
+			$.ajax({
+				url: '/api/cadastro',
+				type: 'POST',
+				data: {
+					usuario: usuario,
+					senha: senha
+				},
+			})
+			.done(function(data) {
+				if( typeof $.cookie('chave') === 'undefined'){
+					$.cookie('chave', data, { expires: 1000, path: '/' });
+				} else {
+					$.removeCookie('chave');
+					$.cookie('chave', data, { expires: 1000, path: '/' });
+				}
+			})
+			.fail(function() {
+			})
+			.always(function() {
+				location.href = "/assinatura"
+			});
+		}
+	});
+});
+
+function Update(data,callback="") {
+	$.ajax({
+		url: '/api/update',
+		type: 'POST',
+		dataType: 'text',
+		data: data,
+	})
+	.always(function() {
+		if(callback != ""){
+			callback()
+		}
+	});
+}
